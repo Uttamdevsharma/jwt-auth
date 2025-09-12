@@ -5,6 +5,7 @@ const cors = require('cors')
 const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { verifyToken } = require('./middleware/authMiddleware');
 const port = process.env.PORT || 3000
 
 //middleware
@@ -93,6 +94,22 @@ async function run() {
 
         } catch(error){
             res.send({message : "wrong", error})
+        }
+    })
+
+
+    //get transaction
+    app.get("/transaction/:email" , verifyToken , async(req,res) => {
+        const {email} = req.params;
+
+        try{
+            const user = await transactionCollection.find({email}).toArray();
+            if(user.length === 0) return res.send({message : "user and order not found"})
+
+            res.send({message : "This is your order transaction" , orders : user})    
+
+        }catch(error){
+            res.send({message : "error arise" , error} )
         }
     })
 
