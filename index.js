@@ -34,6 +34,7 @@ async function run() {
     // create db and collection
     const db = client.db("auth-Management");
     const userCollection = db.collection("users")
+    const transactionCollection = db.collection("transaction")
 
     // await  userCollection.insertOne({
     //     email : "user1@gmail.com",
@@ -41,6 +42,7 @@ async function run() {
 
     // })
 
+   
 
     // register user
     app.post("/register" , async(req,res) => {
