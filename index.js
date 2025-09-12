@@ -72,6 +72,19 @@ async function run() {
         }
     })
 
+
+    //login user
+    app.post("/login" , async(req,res) => {
+        const {email,password} = req.body;
+
+        try {
+            const user = await userCollection.find({email : email})
+            
+        }
+
+
+    })
+
     app.get("/users" , async(req,res) => {
         const result = await userCollection.find({},{projection : {password : 0}}).toArray()
         res.send({
