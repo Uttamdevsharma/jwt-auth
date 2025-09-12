@@ -2,12 +2,12 @@ const express = require('express')
 const app = express()
 require('dotenv').config()
 const cors = require('cors')
+const bcrypt = require('bcrypt');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const port = process.env.PORT || 3000
 
 //middleware
 app.use(express.json())
-
 app.use(cors())
 
 // mongodb connect
@@ -28,6 +28,61 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+
+    // create db and collection
+    const db = client.db("auth-Management");
+    const userCollection = db.collection("users")
+
+    await  userCollection.insertOne({
+        email : "user1@gmail.com",
+        password : 1234
+
+    })
+
+
+    // register user
+    app.post("/register" , async(req,res) => {
+        const {email, password} = req.body;
+
+        try{
+            const existUser = await userCollection.findOne({ email: email });
+            if (existUser) {
+              return res.send({ message: "User already created" });
+            }
+            
+            const hashPassword = await bcrypt.hash(password, 10);
+           
+            const newUser = {
+                email,
+                password : hashPassword,
+                role : "user",
+            }
+
+            const result = await userCollection.insertOne(newUser);
+            res.status(201).json({
+                message : "User Created Successfully",
+                result
+            })
+        }catch(error) {
+            res.send({
+                message : "not created",
+                error
+            })
+        }
+    })
+
+    app.get("/users" , async(req,res) => {
+        const result = await userCollection.find({},{projection : {password : 0}}).toArray()
+        res.send({
+            result
+        })
+    })
+
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
