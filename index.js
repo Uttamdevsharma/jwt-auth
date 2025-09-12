@@ -3,6 +3,7 @@ const app = express()
 require('dotenv').config()
 const cors = require('cors')
 const bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const port = process.env.PORT || 3000
 
@@ -82,9 +83,11 @@ async function run() {
             if(!user) return res.send({message : "user not found"})
 
             const isPasswordValid = await bcrypt.compare(password,user.password )
-            if(!isPasswordValid) return res.send({message : "password Credential"})  
+            if(!isPasswordValid) return res.send({message : "password Credential"}) 
+
+            const token  = jwt.sign({userId : user._id, role : user.role} , process.env.JWT_SECRET_KEY , { expiresIn: '1h' })    
             
-            res.send({message : "User Login Successfully"})    
+            res.send({message : "User Login Successfully" , token})    
 
         } catch(error){
             res.send({message : "wrong", error})
