@@ -34,11 +34,11 @@ async function run() {
     const db = client.db("auth-Management");
     const userCollection = db.collection("users")
 
-    await  userCollection.insertOne({
-        email : "user1@gmail.com",
-        password : 1234
+    // await  userCollection.insertOne({
+    //     email : "user1@gmail.com",
+    //     password : 1234
 
-    })
+    // })
 
 
     // register user
@@ -78,12 +78,22 @@ async function run() {
         const {email,password} = req.body;
 
         try {
-            const user = await userCollection.find({email : email})
+            const user = await userCollection.findOne({email : email})
+            if(!user) return res.send({message : "user not found"})
+
+            const isPasswordValid = await bcrypt.compare(password,user.password )
+            if(!isPasswordValid) return res.send({message : "password Credential"})  
             
+            res.send({message : "User Login Successfully"})    
+
+        } catch(error){
+            res.send({message : "wrong", error})
         }
-
-
     })
+
+
+
+
 
     app.get("/users" , async(req,res) => {
         const result = await userCollection.find({},{projection : {password : 0}}).toArray()
