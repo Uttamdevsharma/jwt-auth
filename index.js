@@ -114,6 +114,12 @@ async function run() {
     })
 
 
+    //profile visit for admin
+    app.get('/dashboard' ,verifyToken, (req,res) => {
+      res.send({message : "Welcome To Dashboard"})
+    })
+
+
 
 
 

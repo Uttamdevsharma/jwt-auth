@@ -18,6 +18,15 @@ const verifyToken = (req,res,next) => {
 
 }
 
+const authorizeRole = (...roles) => {
+    return (req,res, next) => {
+        if(!roles.includes(req.user.role)){
+            return res.send({message : "You are not allowed"})
+        }
+        next()
+    }
+}
+
 module.exports = {
     verifyToken
 }
